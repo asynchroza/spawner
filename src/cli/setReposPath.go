@@ -73,18 +73,6 @@ func updateRcFile(rcFilePath string, path string) error {
 	return writeReposPathInRcFile(rcFilePath, path)
 }
 
-func reloadShell() error {
-	fmt.Println("Reloading shell")
-
-	cmd := exec.Command("/bin/exec", "$SHELL")
-	err := cmd.Run()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func makeBackupOfRcFile(rcFilePath string) error {
 	originalFile, err := os.Open(rcFilePath)
 	if err != nil {
@@ -141,5 +129,6 @@ func SetReposPath(commands []string) error {
 		return errors.New("Shell is not supported. Can't set repos path.")
 	}
 
-	return reloadShell()
+	fmt.Println("\n❗ Please, reload your shell or source your shell's rc file (e.g. source ~/.bashrc)❗")
+	return nil
 }
