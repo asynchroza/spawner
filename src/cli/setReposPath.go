@@ -15,10 +15,22 @@ var AVAILABLE_SHELLS = map[string]string{
 }
 
 func replaceReposPathInRcFile(rcFilePath string, path string) error {
-	cmd := exec.Command("awk", "-F=", fmt.Sprintf("/^export SPAWN_REPOS_PATH/ {sub($2, \"%s\"); print}", path), rcFilePath)
+	content, err := os.ReadFile(rcFilePath)
+	if err != nil {
+		return err
+	}
 
-	err := cmd.Run()
+	lines := strings.Split(string(content), "\n")
+	for i, line := range lines {
+		if strings.HasPrefix(line, "export SPAWN_REPOS_PATH=") {
+			lines[i] = fmt.Sprintf("export SPAWN_REPOS_PATH=%s", path)
+			break
+		}
+	}
 
+	newContent := strings.Join(lines, "\n")
+
+	err = os.WriteFile(rcFilePath, []byte(newContent), 0644)
 	if err != nil {
 		return err
 	}
