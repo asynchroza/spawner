@@ -5,9 +5,10 @@ import (
 )
 
 const (
-	DEV   = "dev"
-	REPOS = "repos"
-	HELP  = "help"
+	DEV          = "dev"
+	REPOS        = "repos"
+	HELP         = "help"
+	INSTALL_DEVC = "install-devcontainers"
 )
 
 func ParseCommand(commands []string) error {
@@ -22,6 +23,8 @@ func ParseCommand(commands []string) error {
 		return SetReposPath(commands)
 	case HELP:
 		return DisplayCommands()
+	case INSTALL_DEVC:
+		return InstallDevContainers()
 	default:
 		return errors.New("Leading argument doesn't match any of the defined commands")
 	}

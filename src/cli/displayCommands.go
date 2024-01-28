@@ -13,6 +13,7 @@ func DisplayCommands() error {
 	}
 
 	fmt.Println("\nCommands:")
+	fmt.Println("\ninstall-devcontainers - install devcontainers cli tool using npm")
 	fmt.Println("\nrepos <full-path-to-directory> - set path to directory where repos are cloned")
 	fmt.Println("\ndev <repo> - spawn vscode development container")
 	fmt.Println("\nAvailable repos:")

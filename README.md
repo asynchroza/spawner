@@ -10,3 +10,8 @@ devContainers:
 ```
 
 ![Pulling repo locally and starting dev container](images/run-dev.png)
+
+## Requirements
+
+* You need to install the [devcontainers cli tool](https://github.com/devcontainers/cli).
+You can do that by running `spawner install-devcontainers` ([npm](https://docs.npmjs.com/cli/v10/commands/npm) is required)
