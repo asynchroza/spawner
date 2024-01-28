@@ -22,7 +22,7 @@ func parseContainerPath(commands []string) (string, error) {
 
 	sshUrl := yaml.DevContainers[commands[1]]
 	if len(sshUrl) == 0 {
-		return "", errors.New("No path found for container")
+		return "", errors.New("No path found for container. You may see available options by typing 'spawner help'")
 	}
 
 	return sshUrl[0], nil
