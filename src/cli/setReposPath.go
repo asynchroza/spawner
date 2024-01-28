@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/user"
 	"strings"
 )
 
@@ -14,7 +15,8 @@ var AVAILABLE_SHELLS = map[string]string{
 }
 
 func replaceReposPathInRcFile(rcFilePath string, path string) error {
-	cmd := exec.Command(fmt.Sprintf("awk -F= '/^export SPAWN_REPOS_PATH/ {sub($2, \"%s\"); print}' %s > %s"), path, rcFilePath, rcFilePath)
+	cmd := exec.Command("awk", "-F=", fmt.Sprintf("/^export SPAWN_REPOS_PATH/ {sub($2, \"%s\"); print}", path), rcFilePath)
+
 	err := cmd.Run()
 
 	if err != nil {
@@ -25,7 +27,8 @@ func replaceReposPathInRcFile(rcFilePath string, path string) error {
 }
 
 func writeReposPathInRcFile(rcFilePath string, path string) error {
-	cmd := exec.Command("echo", fmt.Sprintf("'export SPAWN_REPOS_PATH=%s'", path))
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("echo \"export SPAWN_REPOS_PATH=%s\" >> %s", path, rcFilePath))
+
 	err := cmd.Run()
 
 	if err != nil {
@@ -36,7 +39,12 @@ func writeReposPathInRcFile(rcFilePath string, path string) error {
 }
 
 func updateRcFile(rcFile string, path string) error {
-	rcFilePath := fmt.Sprintf("~/%s", rcFile)
+	usr, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	rcFilePath := fmt.Sprintf("%s/%s", usr.HomeDir, rcFile)
 
 	content, err := os.ReadFile(rcFilePath)
 	if err != nil {
@@ -53,7 +61,7 @@ func updateRcFile(rcFile string, path string) error {
 func reloadShell() error {
 	fmt.Println("Reloading shell")
 
-	cmd := exec.Command("exec", "$SHELL")
+	cmd := exec.Command("/bin/exec", "$SHELL")
 	err := cmd.Run()
 	if err != nil {
 		return err
@@ -69,16 +77,23 @@ func SetReposPath(commands []string) error {
 
 	shell := os.Getenv("SHELL")
 
-	var err error
+	var found bool
 
-	if rcFile, exists := AVAILABLE_SHELLS[shell]; exists {
-		err = updateRcFile(rcFile, commands[1])
-	} else {
-		err = errors.New("Shell is not supported. Can't set repos path.")
+	for key := range AVAILABLE_SHELLS {
+		if strings.Contains(shell, key) {
+			rcFile := AVAILABLE_SHELLS[key]
+			err := updateRcFile(rcFile, commands[1])
+
+			if err != nil {
+				return err
+			}
+
+			found = true
+			break
+		}
 	}
-
-	if err != nil {
-		return err
+	if !found {
+		return errors.New("Shell is not supported. Can't set repos path.")
 	}
 
 	return reloadShell()
