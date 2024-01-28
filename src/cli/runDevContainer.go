@@ -67,6 +67,15 @@ func findRepo(baseDir, repoName string) (bool, error) {
 	return folderFound, nil
 }
 
+func getRepoDirectoryPath() (string, error) {
+	path := os.Getenv("SPAWN_REPOS_PATH")
+	if path == "" {
+		return "", errors.New("Directory for storing repos is not defined - run 'spawner help | grep \"set path to directory\"'")
+	}
+
+	return path, nil
+}
+
 func pullRepoLocallyAndGetName(sshUrl string) (string, error) {
 	repoName, err := extractRepoName(sshUrl)
 
@@ -74,7 +83,12 @@ func pullRepoLocallyAndGetName(sshUrl string) (string, error) {
 		return "", err
 	}
 
-	repoExists, err := findRepo("repos", repoName)
+	repoDirectory, err := getRepoDirectoryPath()
+	if err != nil {
+		return "", err
+	}
+
+	repoExists, err := findRepo(repoDirectory, repoName)
 	if err != nil {
 		return "", err
 	}
