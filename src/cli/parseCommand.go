@@ -5,7 +5,9 @@ import (
 )
 
 const (
-	DEV = "dev"
+	DEV   = "dev"
+	REPOS = "repos"
+	HELP  = "help"
 )
 
 func ParseCommand(commands []string) error {
@@ -16,6 +18,10 @@ func ParseCommand(commands []string) error {
 	switch commands[0] {
 	case DEV:
 		return RunDevContainer(commands)
+	// case REPOS:
+	// return SetReposPath(commands)
+	case HELP:
+		return DisplayCommands()
 	default:
 		return errors.New("Leading argument doesn't match any of the defined commands")
 	}
