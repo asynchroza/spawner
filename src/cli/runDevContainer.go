@@ -44,7 +44,7 @@ func extractRepoName(sshURL string) (string, error) {
 	return repoName, nil
 }
 
-func folderExists(baseDir, folderName string) (bool, error) {
+func findRepo(baseDir, repoName string) (bool, error) {
 	var folderFound bool
 
 	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
@@ -52,7 +52,7 @@ func folderExists(baseDir, folderName string) (bool, error) {
 			return err
 		}
 
-		if info.IsDir() && info.Name() == folderName {
+		if info.IsDir() && info.Name() == repoName {
 			folderFound = true
 			return nil
 		}
@@ -74,7 +74,7 @@ func pullRepoLocallyAndGetName(sshUrl string) (string, error) {
 		return "", err
 	}
 
-	repoExists, err := folderExists("repos", repoName)
+	repoExists, err := findRepo("repos", repoName)
 	if err != nil {
 		return "", err
 	}

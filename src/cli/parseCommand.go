@@ -18,8 +18,8 @@ func ParseCommand(commands []string) error {
 	switch commands[0] {
 	case DEV:
 		return RunDevContainer(commands)
-	// case REPOS:
-	// return SetReposPath(commands)
+	case REPOS:
+		return SetReposPath(commands)
 	case HELP:
 		return DisplayCommands()
 	default:
