@@ -3,6 +3,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/user"
@@ -50,14 +51,16 @@ func writeReposPathInRcFile(rcFilePath string, path string) error {
 	return nil
 }
 
-func updateRcFile(rcFile string, path string) error {
+func getRcFilePath(rcFile string) (string, error) {
 	usr, err := user.Current()
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	rcFilePath := fmt.Sprintf("%s/%s", usr.HomeDir, rcFile)
+	return fmt.Sprintf("%s/%s", usr.HomeDir, rcFile), nil
+}
 
+func updateRcFile(rcFilePath string, path string) error {
 	content, err := os.ReadFile(rcFilePath)
 	if err != nil {
 		return err
@@ -82,6 +85,30 @@ func reloadShell() error {
 	return nil
 }
 
+func makeBackupOfRcFile(rcFilePath string) error {
+	originalFile, err := os.Open(rcFilePath)
+	if err != nil {
+		return err
+	}
+	defer originalFile.Close()
+
+	fmt.Printf("Creating a backup of shell rc file at %s", rcFilePath+".backup\n")
+
+	backupFilePath := rcFilePath + ".backup"
+	backupFile, err := os.Create(backupFilePath)
+	if err != nil {
+		return err
+	}
+	defer backupFile.Close()
+
+	_, err = io.Copy(backupFile, originalFile)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func SetReposPath(commands []string) error {
 	if len(commands) < 2 {
 		return errors.New("Path is not provided")
@@ -94,7 +121,13 @@ func SetReposPath(commands []string) error {
 	for key := range AVAILABLE_SHELLS {
 		if strings.Contains(shell, key) {
 			rcFile := AVAILABLE_SHELLS[key]
-			err := updateRcFile(rcFile, commands[1])
+			rcFilePath, err := getRcFilePath(rcFile)
+			if err != nil {
+				return err
+			}
+
+			makeBackupOfRcFile(rcFilePath)
+			err = updateRcFile(rcFilePath, commands[1])
 
 			if err != nil {
 				return err
