@@ -6,7 +6,6 @@ import (
 
 const (
 	DEV          = "dev"
-	REPOS        = "repos"
 	HELP         = "help"
 	INSTALL_DEVC = "install-devcontainers"
 )
