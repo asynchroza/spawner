@@ -4,9 +4,11 @@ Spawn VSCODE development containers after defining them in a `configuration.yaml
 
 ```yaml
 devContainers:
-  poc-dev-container:
+  reposPath:
+    - /Users/mbozhilov/Documents/Other/spawner/repos # where to pull repos locally
+  containers:
+    poc-dev-container:
     - git@github.com:asynchroza/poc-dev-container-next-linter.git
-
 ```
 
 ![Pulling repo locally and starting dev container](images/run-dev.png)
