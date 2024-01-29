@@ -1,3 +1,6 @@
 devContainers:
-  poc-dev-container:
+  reposPath:
+    - /Users/mbozhilov/Documents/Other/spawner/repos
+  containers:
+    poc-dev-container:
     - git@github.com:asynchroza/poc-dev-container-next-linter.git

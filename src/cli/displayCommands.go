@@ -3,23 +3,27 @@ package cli
 import (
 	"asynchroza/spawner/src/parse"
 	"fmt"
+
+	"github.com/fatih/color"
 )
 
 func DisplayCommands() error {
-	yaml, err := parse.ParseYaml()
-
-	if err != nil {
-		return err
-	}
+	yellow := color.New(color.FgYellow)
+	green := color.New(color.FgGreen)
+	yaml := parse.GetConfiguration()
 
 	fmt.Println("\nCommands:")
-	fmt.Println("\ninstall-devcontainers - install devcontainers cli tool using npm")
-	fmt.Println("\nrepos <full-path-to-directory> - set path to directory where repos are cloned")
-	fmt.Println("\ndev <repo> - spawn vscode development container")
-	fmt.Println("\nAvailable repos:")
 
-	for key := range yaml.DevContainers {
-		fmt.Printf("\t%s\n", key)
+	yellow.Printf("\ninstall-devcontainers")
+	fmt.Println(" - install devcontainers cli tool using npm")
+
+	yellow.Printf("\ndev <repo>")
+	fmt.Println(" - spawn vscode development container")
+
+	fmt.Printf("\nAvailable repos:\n\n")
+
+	for key := range yaml.DevContainers.Containers {
+		green.Printf("\t➡️ %s\n", key)
 	}
 
 	return nil

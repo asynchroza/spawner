@@ -15,12 +15,9 @@ func parseContainerPath(commands []string) (string, error) {
 		return "", errors.New("Container is not provided")
 	}
 
-	yaml, err := parse.ParseYaml()
-	if err != nil {
-		return "", err
-	}
+	yaml := parse.GetConfiguration()
 
-	sshUrl := yaml.DevContainers[commands[1]]
+	sshUrl := yaml.DevContainers.Containers[commands[1]]
 	if len(sshUrl) == 0 {
 		return "", errors.New("No path found for container. You may see available options by typing 'spawner help'")
 	}
@@ -67,13 +64,9 @@ func findRepo(baseDir, repoName string) (bool, error) {
 	return folderFound, nil
 }
 
-func getRepoDirectoryPath() (string, error) {
-	path := os.Getenv("SPAWN_REPOS_PATH")
-	if path == "" {
-		return "", errors.New("Directory for storing repos is not defined - run 'spawner help | grep \"set path to directory\"'")
-	}
-
-	return path, nil
+func getRepoDirectoryPath() string {
+	path := parse.GetConfiguration().DevContainers.ReposPath[0]
+	return path
 }
 
 func pullRepoLocallyAndGetName(sshUrl string) (string, error) {
@@ -83,10 +76,7 @@ func pullRepoLocallyAndGetName(sshUrl string) (string, error) {
 		return "", err
 	}
 
-	repoDirectory, err := getRepoDirectoryPath()
-	if err != nil {
-		return "", err
-	}
+	repoDirectory := getRepoDirectoryPath()
 
 	repoExists, err := findRepo(repoDirectory, repoName)
 	if err != nil {
