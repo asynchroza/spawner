@@ -1,11 +1,11 @@
 package cli
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"os/user"
 	"strings"
 )
@@ -40,10 +40,20 @@ func replaceReposPathInRcFile(rcFilePath string, path string) error {
 }
 
 func writeReposPathInRcFile(rcFilePath string, path string) error {
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("echo \"export SPAWN_REPOS_PATH=%s\" >> %s", path, rcFilePath))
+	file, err := os.OpenFile(rcFilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 
-	err := cmd.Run()
+	writer := bufio.NewWriter(file)
 
+	_, err = fmt.Fprintf(writer, "export SPAWN_REPOS_PATH=%s\n", path)
+	if err != nil {
+		return err
+	}
+
+	err = writer.Flush()
 	if err != nil {
 		return err
 	}
@@ -122,6 +132,8 @@ func SetReposPath(commands []string) error {
 			}
 
 			found = true
+
+			fmt.Printf("\n❗ Please, reload your shell or source your shell's rc file by running \"source %s\"❗\n", rcFilePath)
 			break
 		}
 	}
@@ -129,6 +141,5 @@ func SetReposPath(commands []string) error {
 		return errors.New("Shell is not supported. Can't set repos path.")
 	}
 
-	fmt.Println("\n❗ Please, reload your shell or source your shell's rc file (e.g. source ~/.bashrc)❗")
 	return nil
 }
