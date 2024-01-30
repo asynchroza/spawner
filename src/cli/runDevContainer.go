@@ -88,7 +88,10 @@ func pullRepoLocallyAndGetName(sshUrl string) (string, error) {
 	}
 
 	fmt.Println("⬇️ Pulling repo locally")
-	_, err = exec.Command("git", "clone", sshUrl, fmt.Sprintf("repos/%s", repoName)).Output()
+	cmd := exec.Command("git", "clone", sshUrl, fmt.Sprintf("repos/%s", repoName))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
 
 	if err != nil {
 		return "", err
