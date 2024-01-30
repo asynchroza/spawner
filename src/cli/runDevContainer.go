@@ -64,9 +64,13 @@ func findRepo(baseDir, repoName string) (bool, error) {
 	return folderFound, nil
 }
 
-func getRepoDirectoryPath() string {
-	path := parse.GetConfiguration().DevContainers.ReposPath[0]
-	return path
+func getRepoDirectoryPath() (string, error) {
+	pathArr := parse.GetConfiguration().DevContainers.ReposPath
+
+	if len(pathArr) == 0 {
+		return "", errors.New("Path to repos directory is not provided in configuration")
+	}
+	return pathArr[0], nil
 }
 
 func pullRepoLocallyAndGetName(sshUrl string) (string, error) {
@@ -76,7 +80,10 @@ func pullRepoLocallyAndGetName(sshUrl string) (string, error) {
 		return "", err
 	}
 
-	repoDirectory := getRepoDirectoryPath()
+	repoDirectory, err := getRepoDirectoryPath()
+	if err != nil {
+		return "", err
+	}
 
 	repoExists, err := findRepo(repoDirectory, repoName)
 	if err != nil {
